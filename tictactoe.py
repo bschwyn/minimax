@@ -1,5 +1,7 @@
 
 import random
+import sys
+
 
 class Board():
 
@@ -41,20 +43,80 @@ class Board():
 
 class Player():
 
-    def __init__(self, player, AI, name):
-        self.player = player
-        self.AI = False
-        self.name = name
-        if player == 0:
-            self.mark = 'x'
+    def __init__(self, firstplayer, testmode):
+        if testmode:
+            if firstplayer:
+                name = "Player1test"
+                ai = False
+                mark = 'x'
+            else:
+                name = "player2test"
+                ai = False
+                mark = 'o'
         else:
-            self.mark = 'o'
+            firstplayer, name, ai, mark = self.get_player_variables(firstplayer)
 
-    def get_move(self):
-        pass
+        self.firstplayer = firstplayer
+        self.name = name
+        self.ai = ai
+        self.mark = mark
+
+    def get_player_variables(self,firstplayer):
+        if firstplayer:
+            mark = 'x'
+            print("is player 1 human? (y/n)")
+            human = sys.stdin.readline().strip()
+            if human == "y" or human == "yes":
+                ai = False
+                print("Player 1 - what is your name?:")
+                name = sys.stdin.readline().strip()
+            else:
+                ai = True
+                print("What will Player1bot's name be?")
+                name = sys.stdin.readline().strip()
+            print(name + " will placing x's")
+        else:
+            mark = 'o'
+            print("is player 2 human? (y/n)")
+            human = sys.stdin.readline().strip()
+            if human == "y" or human == "yes":
+                ai = False
+                print("Player 2 - what is your name?:")
+                name = sys.stdin.readline().strip()
+            else:
+                ai = True
+                print("what will Player2bot's name be?")
+                name = sys.stdin.readlin()
+            print(name + " will be placing o's")
+        return firstplayer, name, ai, mark
+
+
+    def get_move(self, board):
+        if self.ai:
+            move = self.get_move_from_ai(board)
+        else:
+            move = self.get_move_from_human(board)
+        return move
+
+    def get_move_from_human(self, board):
+        print(self.name + " - enter a row, column. [format 'a,3' for upper right]" )
+        position = sys.stdin.readline()
+        row, col= position.strip().split(',')
+        mapping = {'a':0, 'b':1, 'c':2, '1':0, '2':1, '3':2}
+        row = mapping[row]
+        col = mapping[col]
+        if self.is_position_ok(board, row, col):
+            return (row, col)
+        else:
+            print("that move was not valid. Please enter another")
+            return self.get_move_from_human(board)
+
+
 
     def is_position_ok(self, board, row, col):
-        if board[row][col] == 'x' or board[row][col] == 'o':
+        if row < 0 or row > 2 or col < 0 or col > 2:
+            return False
+        if board.board[row][col] == 'x' or board.board[row][col] == 'o':
             return False
         else:
             return True
@@ -66,29 +128,19 @@ class Player():
 
 
     def play_move(self, board):
-        row,col = self.get_position()
-        if self.is_position_ok(board, row, col):
-            row, col = self.get_random_position
-            self.place_move(board, row, col)
-        else:
-            print("This was not an acceptable move. Play again")
-            #potential infinite loop
-            self.play_move()
-            #return error
+        row,col = self.get_move(board)
+        self.place_move(board, row, col)
 
     def place_move(self,board, row, col):
         board.change_board(row, col, self.mark)
 
-    def get_player_info(self):
-        pass
-
-
 class Game():
 
-    def __init(self):
+    def __init__(self, testmode):
         self.board = Board()
-        self.p1 = Player(0,False, "ben")
-        self.p2 = Player(1, False, "sam")
+
+        self.p1 = Player(True, testmode)
+        self.p2 = Player(False, testmode)
 
     def end_game(self):
         return self.board.is_full() or self.win_condition_met()
@@ -96,18 +148,23 @@ class Game():
     def win_condition_met(self):
         return self.board.three_in_a_row('o') or self.board.three_in_a_row('x')
 
-    def get_next_player(current, player1, player2):
-        if current.player == 0:
+    def get_next_player(self,current):
+        player1 = self.p1
+        player2 = self.p2
+        if current.firstplayer:
             next_player = player2
         else:
             next_player = player1
         return next_player
 
     def run_game(self):
-        current_player = self.p1
+        current_player = self.p2
         while not self.end_game():
-            self.b.print_board()
-            self.get_next_player(current_player, self.p1, self.p2).play_move(self.b)
+            self.board.print_board()
+            current_player = self.get_next_player(current_player)
+            current_player.play_move(self.board)
+        print("game over!")
+        self.board.print_board()
         return
 
 def test1():
@@ -131,8 +188,14 @@ def test2():
     p2.place_move(b,1,1)
     b.print_board()
 
+def test_get_current_player():
+    g = Game(testmode=True)
+    current_player = g.p1
+    #print(current_player.p1.)
+
 def test3():
-    g = Game()
+    testmode = False
+    g = Game(testmode)
     g.run_game()
 
 #test1()
@@ -154,4 +217,4 @@ def __main__():
     #...
     #player 2 won!
 
-__main__()
+#__main__()
