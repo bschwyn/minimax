@@ -76,7 +76,7 @@ class Player():
         self.mark = mark
 
         if ai:
-            self.agent = Agent(firstplayer)
+            self.agent = Agent(firstplayer, mark)
 
     def get_move(self, board):
         if self.ai:
@@ -130,7 +130,9 @@ class Player():
 
 class Agent():
 
-    def __init__(self):
+    def __init__(self,  mark):
+        self.firstplayer = firstplayer
+        self.mark = mark
 
     def get_next_player(self,current):
         player1 = self.p1
@@ -141,16 +143,22 @@ class Agent():
             next_player = player1
         return next_player
 
-    def utility(self, board, player):
-        mark_of_other_player = self.get_next_player(player)
-        if board.three_in_a_row(player.mark):
+    def other_mark(self, mark):
+        if mark == 'x':
+            return 'o'
+        else:
+            return 'x'
+
+    def utility(self, board, original_mark):
+        mark_of_other_player = self.other_mark(original_mark)
+        if board.three_in_a_row(original_mark):
             return 1
         elif board.three_in_a_row(mark_of_other_player):
             return -1
         else:
             return 0
 
-    def get_move(self, board, firstplayer, mark):
+    def get_move(self, board, mark):
 
         best_val = -float('inf')
         best_move = None
@@ -158,7 +166,8 @@ class Agent():
         for move in board.open_moves():
             row, col = move
             board.change_board(row, col, mark)
-            move_val = self.minimax(board, )
+            m = self.other_mark(mark)
+            move_val = self.minimax(board, m, False)
             board.change_board(row, col, ' ')
 
             if move_val > best_val:
@@ -167,18 +176,18 @@ class Agent():
         return best_move
 
 
-    def minimax(self, board, player):
-        if board.game_over():
-            return self.utility(board, player)
+    def minimax(self, board, mark, maximizing_player):
 
-        maximizing_player = (self.p1.firstplayer == player.firstplayer)
+        if board.game_over():
+            return self.utility(board, mark)
+
         if maximizing_player:
             bestval = -float('inf')
             for move in board.open_moves():
                 row, col = move
-                board.change_board(row, col, player.mark)
-                value = self.minimax(board, self.get_next_player(player))
-                board.change_board(row, col, player.mark)
+                board.change_board(row, col, mark)
+                value = self.minimax(board, self.other_mark(mark), False)
+                board.change_board(row, col, ' ')
                 bestval = max(bestval, value)
                 return bestval
 
@@ -186,8 +195,8 @@ class Agent():
             bestval = float('inf')
             for move in board.open_moves():
                 row, col = move
-                board.change_board(row, col, player.mark)
-                val = self.minimax(board, self.get_next_player(player))
+                board.change_board(row, col, mark)
+                val = self.minimax(board, self.other_mark(mark), True)
                 board.change_board(row, col, ' ')
                 bestval = min(bestval, val)
                 return bestval
