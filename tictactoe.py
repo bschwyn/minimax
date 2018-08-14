@@ -76,7 +76,7 @@ class Player():
         self.mark = mark
 
         if ai:
-            self.agent = Agent(firstplayer, mark)
+            self.agent = Agent(mark)
 
     def get_move(self, board):
         if self.ai:
@@ -86,7 +86,8 @@ class Player():
         return move
 
     def get_move_from_ai(self, board):
-        row, col = self.agent.get_move(board, self.firstplayer, self.mark)
+        (row, col) = self.agent.get_move(board, self.mark)
+        return (row, col)
 
     def get_move_from_human(self, board):
         print(self.name + " - enter a row, column. [format 'a,3' for upper right]" )
@@ -131,17 +132,7 @@ class Player():
 class Agent():
 
     def __init__(self,  mark):
-        self.firstplayer = firstplayer
         self.mark = mark
-
-    def get_next_player(self,current):
-        player1 = self.p1
-        player2 = self.p2
-        if current.firstplayer:
-            next_player = player2
-        else:
-            next_player = player1
-        return next_player
 
     def other_mark(self, mark):
         if mark == 'x':
@@ -189,7 +180,7 @@ class Agent():
                 value = self.minimax(board, self.other_mark(mark), False)
                 board.change_board(row, col, ' ')
                 bestval = max(bestval, value)
-                return bestval
+            return bestval
 
         else:
             bestval = float('inf')
@@ -199,7 +190,7 @@ class Agent():
                 val = self.minimax(board, self.other_mark(mark), True)
                 board.change_board(row, col, ' ')
                 bestval = min(bestval, val)
-                return bestval
+            return bestval
 
 class Game():
 
@@ -239,7 +230,7 @@ class Game():
             else:
                 ai = True
                 print("what will Player2bot's name be?")
-                name = sys.stdin.readlin()
+                name = sys.stdin.readline()
             print(name + " will be placing o's")
             print()
         return firstplayer, name, ai, mark
