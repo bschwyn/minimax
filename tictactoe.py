@@ -24,6 +24,9 @@ class Board():
                     return False
         return full
 
+    def game_over(self):
+        return self.is_full() or self.three_in_a_row('x') or self.three_in_a_row('o')
+
     def open_moves(self):
         moves = []
         for i in range(3):
@@ -51,7 +54,7 @@ class Board():
 
 class Player():
 
-    def __init__(self, firstplayer, name, ai, mark:
+    def __init__(self, firstplayer, name, ai, mark):
         if testmode:
             if firstplayer:
                 name = "Player1test"
@@ -107,8 +110,6 @@ class Player():
         else:
             move = self.get_move_from_human(board)
         return move
-
-    def get_move_from_agent(self, board):
 
     def get_move_from_human(self, board):
         print(self.name + " - enter a row, column. [format 'a,3' for upper right]" )
@@ -174,11 +175,10 @@ class Agent():
         else:
             return 0
 
-    def game_over(self, board):
-        return board.is_full() or board.three_in_a_row('x') or board.three_in_a_row('o')
+
 
     def minimax(self, board, player):
-        if self.game_over(board):
+        if board.game_over():
             return self.utility(board, player)
 
         maximizing_player = (self.p1.firstplayer == player.firstplayer)
