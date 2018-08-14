@@ -3,6 +3,18 @@ import random
 import sys
 
 
+#different ways that this could go:
+#player has agent
+
+#agent / minimax needs to know mark of both players to put on the board, and a boolean value for which player is associated w/ each mark
+#player needs a mark and a location
+#game could have an agent which knows both players and is called upon by a player when they want to use an AI
+#marks could just be isolated from players and instead associated with firstplayer and secondplayer
+
+#philosophy get it done vs philosophy get it done the "right way"
+
+
+
 class Board():
 
     def __init__(self):
@@ -63,12 +75,18 @@ class Player():
         self.ai = ai
         self.mark = mark
 
+        if ai:
+            self.agent = Agent(firstplayer)
+
     def get_move(self, board):
         if self.ai:
             move = self.get_move_from_ai(board)
         else:
             move = self.get_move_from_human(board)
         return move
+
+    def get_move_from_ai(self, board):
+        row, col = self.agent.get_move(board, self.firstplayer, self.mark)
 
     def get_move_from_human(self, board):
         print(self.name + " - enter a row, column. [format 'a,3' for upper right]" )
@@ -112,9 +130,7 @@ class Player():
 
 class Agent():
 
-    def __init__(self, board, player, other_player, firstplayer):
-        self.p1 = player
-        self.p2 = other_player
+    def __init__(self):
 
     def get_next_player(self,current):
         player1 = self.p1
@@ -134,6 +150,21 @@ class Agent():
         else:
             return 0
 
+    def get_move(self, board, firstplayer, mark):
+
+        best_val = -float('inf')
+        best_move = None
+
+        for move in board.open_moves():
+            row, col = move
+            board.change_board(row, col, mark)
+            move_val = self.minimax(board, )
+            board.change_board(row, col, ' ')
+
+            if move_val > best_val:
+                best_val = move_val
+                best_move = (row, col)
+        return best_move
 
 
     def minimax(self, board, player):
@@ -282,15 +313,5 @@ test3()
 def __main__():
     print('hello')
     g = Game()
-    #player 1 name? : "ben" enter
-    #player 2 name? : "computer" enter
-    #print board
-    #player 1's turn: a3
-    #print board
-    #player 2's turn - player 2 played in B1
-    #print board
-    #player 1's turn:
-    #...
-    #player 2 won!
 
 #__main__()
