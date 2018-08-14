@@ -44,8 +44,10 @@ class Board():
 
     def three_in_a_row(self, x):
         row = (self.board[0] == [x,x,x] or self.board[1] == [x,x,x] or self.board[2] ==[x,x,x])
+
         diag = (self.board[0][0] == x and self.board[1][1] == x and self.board[2][2] == x) or \
-              (self.board[0][2] == x and self.board[1][1] == x and self.board[2][0])
+               (self.board[0][2] == x and self.board[1][1] == x and self.board[2][0] == x)
+
         col = (self.board[0][0] == x and self.board[1][0] == x and self.board[2][0]==x) or \
               (self.board[0][1] == x and self.board[1][1] == x and self.board[2][1]==x) or \
               (self.board[0][2] == x and self.board[1][2] == x and self.board[2][2] == x)
@@ -55,54 +57,11 @@ class Board():
 class Player():
 
     def __init__(self, firstplayer, name, ai, mark):
-        if testmode:
-            if firstplayer:
-                name = "Player1test"
-                ai = False
-                mark = 'x'
-            else:
-                name = "player2test"
-                ai = False
-                mark = 'o'
-        else:
-            firstplayer, name, ai, mark = self.get_player_variables(firstplayer)
 
         self.firstplayer = firstplayer
         self.name = name
         self.ai = ai
         self.mark = mark
-
-    def get_player_variables(self,firstplayer):
-        if firstplayer:
-            mark = 'x'
-            print("is player 1 human? (y/n)")
-            human = sys.stdin.readline().strip()
-            if human == "y" or human == "yes":
-                ai = False
-                print("Player 1 - what is your name?:")
-                name = sys.stdin.readline().strip()
-            else:
-                ai = True
-                print("What will Player1bot's name be?")
-                name = sys.stdin.readline().strip()
-            print(name + " will placing x's")
-            print()
-        else:
-            mark = 'o'
-            print("is player 2 human? (y/n)")
-            human = sys.stdin.readline().strip()
-            if human == "y" or human == "yes":
-                ai = False
-                print("Player 2 - what is your name?:")
-                name = sys.stdin.readline().strip()
-            else:
-                ai = True
-                print("what will Player2bot's name be?")
-                name = sys.stdin.readlin()
-            print(name + " will be placing o's")
-            print()
-        return firstplayer, name, ai, mark
-
 
     def get_move(self, board):
         if self.ai:
@@ -204,23 +163,14 @@ class Agent():
 
 class Game():
 
-    def __init__(self, testmode):
+    def __init__(self):
         self.board = Board()
-        name, ai = self.get_player_variables(True)
-        if ai:
-            self.p1 = Agent(True, name)
-        else:
-            self.p1 = Player(True, name, mark)
-        secondplayer2, name2, ai2, mark2 = self.get_player_variables(False)
-        if ai2:
-            self.p2 = Agent(False, name2)
-        else:
-            self.p2 = Player(False)
 
-        self.p1 = Player(True, testmode)
-        self.p2 = Player(False, testmode)
+        first, p1name, p1ai, p1mark = self.get_player_variables(True)
+        self.p1 = Player(True, p1name, p1ai, p1mark)
 
-    def get_player_something(self, firstplayer):
+        second, p2name, p2ai, p2mark = self.get_player_variables(False)
+        self.p2 = Player(False, p2name, p2ai, p2mark)
 
 
     def get_player_variables(self,firstplayer):
@@ -312,9 +262,18 @@ def test_get_current_player():
 
 def test3():
     testmode = False
-    g = Game(testmode)
+    g = Game()
     g.run_game()
 
+def test4():
+    somethingwrong = [['x', ' ', 'x'],
+     [' ', 'x', ' '],
+     ['o', ' ', 'o']]
+    b = Board()
+    b.board = somethingwrong
+    print(b.three_in_a_row('x'))
+
+#test4()
 #test1()
 #test2()
 test3()
