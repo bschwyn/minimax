@@ -24,6 +24,14 @@ class Board():
                     return False
         return full
 
+    def open_moves(self):
+        moves = []
+        for i in range(3):
+            for j in range(3):
+                if self.board[i][j] == ' ':
+                    moves.append((i,j))
+        return moves
+
     def print_board(self):
         print('  1 2 3')
         print('a ' + self.board[0][0] + '|' + self.board[0][1] + '|' + self.board[0][2])
@@ -43,7 +51,7 @@ class Board():
 
 class Player():
 
-    def __init__(self, firstplayer, testmode):
+    def __init__(self, firstplayer, name, ai, mark:
         if testmode:
             if firstplayer:
                 name = "Player1test"
@@ -100,6 +108,8 @@ class Player():
             move = self.get_move_from_human(board)
         return move
 
+    def get_move_from_agent(self, board):
+
     def get_move_from_human(self, board):
         print(self.name + " - enter a row, column. [format 'a,3' for upper right]" )
         position = sys.stdin.readline()
@@ -140,11 +150,11 @@ class Player():
     def place_move(self,board, row, col):
         board.change_board(row, col, self.mark)
 
-class agent():
+class Agent():
 
-    def __init__(self, board, player1, player2):
-        self.p1 = player1
-        self.p2 = player2
+    def __init__(self, board, player, other_player, firstplayer):
+        self.p1 = player
+        self.p2 = other_player
 
     def get_next_player(self,current):
         player1 = self.p1
@@ -171,29 +181,78 @@ class agent():
         if self.game_over(board):
             return self.utility(board, player)
 
-        #if is maximizing player
-        #maximize this value
-        #bestval = -inf
-        #for each move on the board
-        #vlaue = minimax (board, depth +1, the other player
-        #bestval = max(bestval, val)
-        #return bestval
+        maximizing_player = (self.p1.firstplayer == player.firstplayer)
+        if maximizing_player:
+            bestval = -float('inf')
+            for move in board.open_moves():
+                row, col = move
+                board.change_board(row, col, player.mark)
+                value = self.minimax(board, self.get_next_player(player))
+                board.change_board(row, col, player.mark)
+                bestval = max(bestval, value)
+                return bestval
 
-        #else
-        #minimize the maximum of this player
-        #bestval = +inf
-        #for each move in board
-        #value = minimax(board, depth + 1, maximizing player)
-        #bestval  = min(bestval
-        #return bestval
+        else:
+            bestval = float('inf')
+            for move in board.open_moves():
+                row, col = move
+                board.change_board(row, col, player.mark)
+                val = self.minimax(board, self.get_next_player(player))
+                board.change_board(row, col, ' ')
+                bestval = min(bestval, val)
+                return bestval
 
 class Game():
 
     def __init__(self, testmode):
         self.board = Board()
+        name, ai = self.get_player_variables(True)
+        if ai:
+            self.p1 = Agent(True, name)
+        else:
+            self.p1 = Player(True, name, mark)
+        secondplayer2, name2, ai2, mark2 = self.get_player_variables(False)
+        if ai2:
+            self.p2 = Agent(False, name2)
+        else:
+            self.p2 = Player(False)
 
         self.p1 = Player(True, testmode)
         self.p2 = Player(False, testmode)
+
+    def get_player_something(self, firstplayer):
+
+
+    def get_player_variables(self,firstplayer):
+        if firstplayer:
+            mark = 'x'
+            print("is player 1 human? (y/n)")
+            human = sys.stdin.readline().strip()
+            if human == "y" or human == "yes":
+                ai = False
+                print("Player 1 - what is your name?:")
+                name = sys.stdin.readline().strip()
+            else:
+                ai = True
+                print("What will Player1bot's name be?")
+                name = sys.stdin.readline().strip()
+            print(name + " will placing x's")
+            print()
+        else:
+            mark = 'o'
+            print("is player 2 human? (y/n)")
+            human = sys.stdin.readline().strip()
+            if human == "y" or human == "yes":
+                ai = False
+                print("Player 2 - what is your name?:")
+                name = sys.stdin.readline().strip()
+            else:
+                ai = True
+                print("what will Player2bot's name be?")
+                name = sys.stdin.readlin()
+            print(name + " will be placing o's")
+            print()
+        return firstplayer, name, ai, mark
 
     def end_game(self):
         return self.board.is_full() or self.win_condition_met()
@@ -216,7 +275,6 @@ class Game():
             self.board.print_board()
             current_player = self.get_next_player(current_player)
             current_player.play_move(self.board)
-
         self.board.print_board()
 
 
