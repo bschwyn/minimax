@@ -75,6 +75,7 @@ class Player():
                 print("What will Player1bot's name be?")
                 name = sys.stdin.readline().strip()
             print(name + " will placing x's")
+            print()
         else:
             mark = 'o'
             print("is player 2 human? (y/n)")
@@ -88,6 +89,7 @@ class Player():
                 print("what will Player2bot's name be?")
                 name = sys.stdin.readlin()
             print(name + " will be placing o's")
+            print()
         return firstplayer, name, ai, mark
 
 
@@ -101,13 +103,17 @@ class Player():
     def get_move_from_human(self, board):
         print(self.name + " - enter a row, column. [format 'a,3' for upper right]" )
         position = sys.stdin.readline()
-        row, col= position.strip().split(',')
-        mapping = {'a':0, 'b':1, 'c':2, '1':0, '2':1, '3':2}
-        row = mapping[row]
-        col = mapping[col]
-        if self.is_position_ok(board, row, col):
-            return (row, col)
-        else:
+        try:
+            row, col= position.strip().split(',')
+            mapping = {'a':0, 'b':1, 'c':2, '1':0, '2':1, '3':2}
+            row = mapping[row]
+            col = mapping[col]
+            if self.is_position_ok(board, row, col):
+                return (row, col)
+            else:
+                print("that move was not valid. Please enter another")
+                return self.get_move_from_human(board)
+        except Exception:
             print("that move was not valid. Please enter another")
             return self.get_move_from_human(board)
 
@@ -133,6 +139,53 @@ class Player():
 
     def place_move(self,board, row, col):
         board.change_board(row, col, self.mark)
+
+class agent():
+
+    def __init__(self, board, player1, player2):
+        self.p1 = player1
+        self.p2 = player2
+
+    def get_next_player(self,current):
+        player1 = self.p1
+        player2 = self.p2
+        if current.firstplayer:
+            next_player = player2
+        else:
+            next_player = player1
+        return next_player
+
+    def utility(self, board, player):
+        mark_of_other_player = self.get_next_player(player)
+        if board.three_in_a_row(player.mark):
+            return 1
+        elif board.three_in_a_row(mark_of_other_player):
+            return -1
+        else:
+            return 0
+
+    def game_over(self, board):
+        return board.is_full() or board.three_in_a_row('x') or board.three_in_a_row('o')
+
+    def minimax(self, board, player):
+        if self.game_over(board):
+            return self.utility(board, player)
+
+        #if is maximizing player
+        #maximize this value
+        #bestval = -inf
+        #for each move on the board
+        #vlaue = minimax (board, depth +1, the other player
+        #bestval = max(bestval, val)
+        #return bestval
+
+        #else
+        #minimize the maximum of this player
+        #bestval = +inf
+        #for each move in board
+        #value = minimax(board, depth + 1, maximizing player)
+        #bestval  = min(bestval
+        #return bestval
 
 class Game():
 
@@ -163,8 +216,14 @@ class Game():
             self.board.print_board()
             current_player = self.get_next_player(current_player)
             current_player.play_move(self.board)
-        print("game over!")
+
         self.board.print_board()
+
+
+        if self.board.three_in_a_row(current_player.mark):
+            print(current_player.name + " has won the game!")
+        else:
+            print("draw!")
         return
 
 def test1():
